@@ -280,7 +280,7 @@ test_pipeline = [
 ]
 data = [
     dict(
-        client_ip='172.16.1.190',
+        client_ip='10.10.6.121',
         client_port=5000,
         gpu_ids=[0],
         tasktype='detect',
@@ -303,7 +303,7 @@ data = [
             pipeline=test_pipeline)
         ),
     dict(
-        client_ip='172.16.1.190',
+        client_ip='10.10.6.121',
         client_port=5000,
         tasktype='faceKp',
         gpu_ids=[1],
@@ -326,7 +326,7 @@ data = [
             pipeline=test_pipeline)
         ),
     dict(
-        client_ip='172.16.1.190',
+        client_ip='10.10.6.121',
         client_port=5000,
         tasktype='faceGender',
         gpu_ids=[2],
@@ -349,7 +349,7 @@ data = [
             pipeline=test_pipeline)
         ),
     dict(
-        client_ip='172.16.1.190',
+        client_ip='10.10.6.121',
         client_port=5000,
         tasktype='faceDetect',
         gpu_ids=[3],
@@ -372,7 +372,7 @@ data = [
             pipeline=test_pipeline)
         ),
     dict(
-        client_ip='172.16.1.190',
+        client_ip='10.10.6.121',
         client_port=5000,
         tasktype='carplateDetect',
         gpu_ids=[4],
@@ -380,17 +380,17 @@ data = [
         workers_per_gpu=2,
         train=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/carplate_train_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/carplateDetect_train_res.json',
             img_prefix='',
             pipeline=train_pipeline),
         val=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/carplate_test_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/carplateDetect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline),
         test=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/carplate_test_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/carplateDetect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline)
     )
@@ -404,8 +404,8 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=0.001,
-    step=[8, 10])
-max_epochs=12
+    step=[12, 16])
+max_epochs=20
 runner = dict(type='EpochBasedRunner', max_epochs=max_epochs)
 checkpoint_config = dict(interval=1)
 log_config = dict(interval=10, hooks=[dict(type='TextLoggerHook')])
@@ -426,9 +426,9 @@ mp_start_method = 'spawn'
 #联邦训练任务Id
 job_root = 'job'
 job_id = 'testGA-FPN2'
-test_interval=12
+test_interval=1
 #联邦融合策略
 fedmerge = 'FedAvg'
 fedlw = False
-server_ip = '10.10.5.136'
+server_ip = '10.10.6.121'
 server_port = 6000
