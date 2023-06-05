@@ -39,6 +39,6 @@ def init_config(config):
                                 'epoch_num':0,
                                 'merge_file':'',
                                 'client_cfg_file':client_savepath+'/'+config.split('/')[-1],
-                                'loss':[],
+                                'loss':[1],
                                 'bl_w':[1]})
     return client_cfg_List, cfg

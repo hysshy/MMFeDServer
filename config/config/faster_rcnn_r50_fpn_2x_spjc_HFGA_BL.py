@@ -425,7 +425,7 @@ find_unused_parameters=True
 mp_start_method = 'spawn'
 #联邦训练任务Id
 job_root = 'job'
-job_id = 'HFGA-BL-test'
+job_id = 'HFGA-BL-test2'
 test_interval=1
 #联邦融合策略
 fedmerge = 'FedAvg'
