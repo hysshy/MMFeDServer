@@ -3,7 +3,7 @@ import copy
 import torch
 import numpy as np
 
-def fedAdaptive(cfg_list, share_keys=['backbone', 'backbone_neck', 'attention_backbone']):
+def fedHFGA(cfg_list, share_keys=['backbone', 'backbone_neck', 'attention_backbone']):
     #联邦平均融合算法
     net_w_dict = {}
     net_len = 0
@@ -46,21 +46,21 @@ def fedAdaptive(cfg_list, share_keys=['backbone', 'backbone_neck', 'attention_ba
             assert task in task_merge_w_dict.keys()
             merge_w[key] = task_merge_w_dict[task][key]
 
-    dist_list = []
-    for i in range(len(epoch_list)):
-        dist = 0
-        for key in merge_w.keys():
-            if key.startswith('backbone.'):
-                if key.endswith('num_batches_tracked'):
-                    continue
-                x = merge_w[key]
-                y = epoch_list[i][key]
-                dist = dist+torch.dist(x, y).numpy()
-        dist_list.append(dist)
-    print(dist_list)
-    for i in range(len(cfg_list)):
-        cfg_list[i]['adaptive_w'].append(dist_list[i]/np.sum(dist_list))
-        print(cfg_list[i]['adaptive_w'])
+    # dist_list = []
+    # for i in range(len(epoch_list)):
+    #     dist = 0
+    #     for key in merge_w.keys():
+    #         if key.startswith('backbone.'):
+    #             if key.endswith('num_batches_tracked'):
+    #                 continue
+    #             x = merge_w[key]
+    #             y = epoch_list[i][key]
+    #             dist = dist+torch.dist(x, y).numpy()
+    #     dist_list.append(dist)
+    # print(dist_list)
+    # for i in range(len(cfg_list)):
+    #     cfg_list[i]['adaptive_w'].append(dist_list[i]/np.sum(dist_list))
+    #     print(cfg_list[i]['adaptive_w'])
     del task_merge_w_dict, net_w_dict
     return merge_w
 
@@ -97,4 +97,4 @@ if __name__ == '__main__':
     cfg5['adaptive_w'] = 0
     cfg_list.append(cfg5)
 
-    fedAdaptive(cfg_list)
+    fedHFGA(cfg_list)

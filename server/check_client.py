@@ -100,35 +100,35 @@ def is_prepare(cfg):
         return False
 
 #获取客户端当前loss值
-def get_client_loss(cfg, work_dir, total_fedlw_num, fedlw_num):
+def get_client_loss(cfg, work_dir, total_fedbl_num, fedbl_num):
     # logger.info('获取客户端当前loss值:'+ cfg['client_id'])
     response = requests.post('http://{}:{}/post_client_loss'.format(cfg['client_ip'], cfg['client_port']),
                            json={'work_dir': work_dir,
-                                 'total_fedlw_num':total_fedlw_num,
-                                 'fedlw_num':fedlw_num})
+                                 'total_fedbl_num':total_fedbl_num,
+                                 'fedbl_num':fedbl_num})
     if response.status_code == 200:
         logger.info('成功获取客户端当前loss值'+ cfg['client_id']+':'+response.text)
         return True, response.text
     else:
         return False, response.text
 
-#向客户端发送fedlw值
-def post_client_fedlw(cfg, work_dir, fedlw_num, fedlw):
-    logger.info('向客户端发送fedlw值:'+ cfg['client_id']+'-'+str(fedlw))
-    response = requests.post('http://{}:{}/get_client_fedlw'.format(cfg['client_ip'], cfg['client_port']),
+#向客户端发送adaptivew值
+def post_client_fedbl(cfg, work_dir, fedbl_num, bl_w):
+    logger.info('向客户端发送bl_w值:'+ cfg['client_id']+'-'+str(bl_w))
+    response = requests.post('http://{}:{}/get_client_fedbl'.format(cfg['client_ip'], cfg['client_port']),
                            json={'work_dir': work_dir,
-                                 'fedlw_num':fedlw_num,
-                                 'fedlw':fedlw})
+                                 'fedbl_num':fedbl_num,
+                                 'bl_w':bl_w})
     return response.text
 
-#向客户端发送adaptive_w值
-def post_client_adaptive_w(cfg, work_dir, tasktype, adaptive_w):
-    logger.info('向客户端发送adaptive_w值:'+ cfg['client_id']+'-'+str(adaptive_w))
-    response = requests.post('http://{}:{}/get_client_adaptive_w'.format(cfg['client_ip'], cfg['client_port']),
-                           json={'work_dir': work_dir,
-                                 'tasktype':tasktype,
-                                 'adaptive_w':adaptive_w})
-    return response.text
+# #向客户端发送adaptive_w值
+# def post_client_bl_w(cfg, work_dir, tasktype, bl_w):
+#     logger.info('向客户端发送bl_w值:'+ cfg['client_id']+'-'+str(bl_w))
+#     response = requests.post('http://{}:{}/get_client_bl_w'.format(cfg['client_ip'], cfg['client_port']),
+#                            json={'work_dir': work_dir,
+#                                  'tasktype':tasktype,
+#                                  'bl_w':bl_w})
+#     return response.text
 # def get_epoch_thread(cfg):
 #     client_epoch_num = 1
 #     cfg_files = cfg['client_cfg_file'].split('/')

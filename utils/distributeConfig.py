@@ -14,6 +14,7 @@ def configTojson(config):
 
 def init_config(config):
     client_cfg_List = []
+    print(config)
     cfg = Config.fromfile(config)
     for i in range(len(cfg.data)):
         client_cfg = copy.deepcopy(cfg)
@@ -39,6 +40,5 @@ def init_config(config):
                                 'merge_file':'',
                                 'client_cfg_file':client_savepath+'/'+config.split('/')[-1],
                                 'loss':[],
-                                'fedlw':[0],
-                                'adaptive_w':[0]})
+                                'bl_w':[1]})
     return client_cfg_List, cfg

@@ -32,8 +32,8 @@ if __name__ == '__main__':
         train(client_config_list[i])
     #联邦融合
     # time.sleep(30)
-    t = threading.Thread(target=fed_merging, args=(client_config_list, fed_start_from, cfg.max_epochs, cfg.test_interval, cfg.total_fedlw_num, cfg.fedlw))
+    t = threading.Thread(target=fed_merging, args=(client_config_list, fed_start_from, cfg.max_epochs, cfg.test_interval, cfg.total_fedbl_num, cfg.fedbl))
     t.start()
-    # fed_merging(client_config_list, fed_start_from, cfg.max_epochs, cfg.test_interval, cfg.total_fedlw_num, cfg.fedlw)
+    # fed_merging(client_config_list, 1, cfg.max_epochs, cfg.test_interval, cfg.total_fedbl_num, cfg.fedbl)
     api = Api(app)
     app.run(host=args.ip, port=args.port, debug=False)

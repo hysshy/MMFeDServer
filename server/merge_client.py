@@ -4,14 +4,13 @@ from concurrent.futures import ThreadPoolExecutor, wait
 import time
 import torch
 from utils.Log import logger
-from fedmerge.fedadaptive import fedAdaptive
-from fedmerge.fed_lw import fed_LW
-from server.check_client import download_file, upload_file, get_client_loss, post_client_fedlw, post_client_adaptive_w
+from fedmerge.fedHFGA import fedHFGA
+from fedmerge.fed_bl import fed_BL
+from server.check_client import download_file, upload_file, get_client_loss, post_client_fedbl
 from server import test_client
 from utils.common import download_epoch_list, is_file_transfer_complete
 import numpy as np
 # ch = torch.load('/home/chase/PycharmProjects/MMFedClient/job/job0/epoch_1.pth', map_location='cpu')
-# print(ch)
 
 def load_client_epoch_thread(aggregate_num, client_cfg):
     client_file_path = client_cfg['job_root'] + '/' + client_cfg['job_id'] + '/' + client_cfg[
@@ -28,25 +27,26 @@ def load_client_epoch_thread(aggregate_num, client_cfg):
             time.sleep(float(info))
 
 
-def load_client_loss_thread(client_cfg, fedlw_num, total_fedlw_num):
+def load_client_loss_thread(client_cfg, bl_num, total_bl_num):
     client_work_dir= client_cfg['job_root'] + '/' + client_cfg['job_id'] + '/' + client_cfg[
         'client_id'] + '/'
+
     while 1:
-        status, info = get_client_loss(client_cfg, client_work_dir, total_fedlw_num, fedlw_num)
+        status, info = get_client_loss(client_cfg, client_work_dir, total_bl_num, bl_num)
         if status:
-            client_cfg['loss'].append(float(info.split(':')[1]) / (1+client_cfg['fedlw'][-1]))
+            client_cfg['loss'].append(float(info.split(':')[1]) / (client_cfg['bl_w'][-1]))
             break
         else:
-            # logger.info(client_cfg['client_id']+':模型训练中,预计fed_lw_iter训练时间:'+info)
+            # logger.info(client_cfg['client_id']+':模型训练中,预计fed_bl_iter训练时间:'+info)
             time.sleep(float(info))
 
 #获取节点loss
-def load_client_loss(client_cfg_list, fedlw_num, total_fedlw_num):
+def load_client_loss(client_cfg_list, bl_num, total_bl_num):
     with ThreadPoolExecutor(max_workers=len(client_cfg_list)) as executor:
         futures = []
         for i in range(len(client_cfg_list)):
             client_cfg = client_cfg_list[i]
-            futures.append(executor.submit(load_client_loss_thread, client_cfg, fedlw_num, total_fedlw_num))
+            futures.append(executor.submit(load_client_loss_thread, client_cfg, bl_num, total_bl_num))
         # 等待所有任务完成
         wait(futures)
 
@@ -97,63 +97,42 @@ def clear_client(client_cfg_list, savefile):
             os.remove(client_cfg_list[i]['merge_file'])
         client_cfg_list[i]['merge_file'] = savefile
 
-#保存adaptive_w
-def save_adaptive_w(client_cfg_list):
-    for i in range(len(client_cfg_list)):
-        savefile = client_cfg_list[i]['job_root'] + '/' + client_cfg_list[i]['job_id'] + '/' + \
-                   client_cfg_list[i]['client_id'] + '/' + 'adaptive_w.txt'
-        with open(savefile, mode='w') as f:
-            f.write(client_cfg_list[i]['tasktype'] + ':' + str(client_cfg_list[i]['adaptive_w'][-1]) + '\n')
-            f.flush()
-            f.close()
-
 def merge_epoch(client_cfg_list, aggregate_num, test_interval=1):
     logger.info('联邦融合epoch:' + str(aggregate_num))
     logger.info('加载所有节点模型')
     check_client_epoch(client_cfg_list, aggregate_num)
     # load_client_epoch(client_cfg_list, aggregate_num)
     logger.info('完成加载所有节点模型,开始融合')
-    merge_w = fedAdaptive(client_cfg_list)
+    merge_w = fedHFGA(client_cfg_list)
     savefile = client_cfg_list[0]['job_root'] + '/' + client_cfg_list[0]['job_id'] + '/merge_epoch_' + str(
         aggregate_num) + '.pth'
     torch.save(merge_w, savefile)
-    logger.info('前一节点，保存adaptive_w')
-    save_adaptive_w(client_cfg_list)
     logger.info('完成融合，清楚节点缓存')
     clear_client(client_cfg_list, savefile)
-    # logger.info('向客户端发布adaptive_w')
-    # publish_adaptive_w(client_cfg_list)
     logger.info('向客户端发布融合模型')
     publish_client(client_cfg_list, savefile)
     if aggregate_num % test_interval == 0:
         logger.info('测试模型准确率')
         test_client.eval(client_cfg_list)
 
-# 多任务loss正则化
-def fed_lw_client(client_cfg_list, total_fedlw_num):
-    for fedlw_num in range(total_fedlw_num):
-        load_client_loss(client_cfg_list, fedlw_num+1, total_fedlw_num)
-        fed_LW(fedlw_num+1, client_cfg_list)
+# 多任务loss均衡
+def fed_bl_client(client_cfg_list, total_bl_num):
+    for fedbl_num in range(total_bl_num):
+        load_client_loss(client_cfg_list, fedbl_num+1, total_bl_num)
+        fed_BL(fedbl_num+1, client_cfg_list)
         for i in range(len(client_cfg_list)):
             client_cfg = client_cfg_list[i]
             client_work_dir = client_cfg['job_root'] + '/' + client_cfg['job_id'] + '/' + client_cfg[
                 'client_id'] + '/'
-            status = post_client_fedlw(client_cfg, client_work_dir, fedlw_num+1, client_cfg['fedlw'][-1])
-
-# 发布adaptive_w
-def publish_adaptive_w(client_cfg_list):
-    for i in range(len(client_cfg_list)):
-        client_cfg = client_cfg_list[i]
-        client_work_dir = client_cfg['job_root'] + '/' + client_cfg['job_id'] + '/' + client_cfg[
-            'client_id'] + '/'
-        status = post_client_adaptive_w(client_cfg, client_work_dir, client_cfg['tasktype'], client_cfg['adaptive_w'][-1])
+            status = post_client_fedbl(client_cfg, client_work_dir, fedbl_num+1, client_cfg['bl_w'][-1])
 
 #融合节点模型
-def fed_merging(client_cfg_list, fed_start_from, max_epochs=24, test_interval=1, total_fedlw_num=1, fedlw=False):
+def fed_merging(client_cfg_list, fed_start_from, max_epochs=24, test_interval=1, total_bl_num=1, fedbl=False):
     #联邦融合
     for aggregate_num in range(fed_start_from, max_epochs+1):
-        if fedlw:
-            t = threading.Thread(target=fed_lw_client, args=(client_cfg_list, total_fedlw_num))
+        # fed_bl_client(client_cfg_list, total_bl_num)
+        if fedbl:
+            t = threading.Thread(target=fed_bl_client, args=(client_cfg_list, total_bl_num))
             t.start()
         merge_epoch(client_cfg_list, aggregate_num, test_interval)
 
