@@ -6,7 +6,7 @@ def fed_BL(fedlw_num, cfg_list):
     for i in range(len(cfg_list)):
         print(cfg_list[i]['loss'])
         w_loss_list.append(cfg_list[i]['loss'][-1])
-        g_loss_list.append(math.exp(cfg_list[i]['loss'][0]/cfg_list[i]['loss'][-1]/50))
+        g_loss_list.append(math.exp(cfg_list[i]['loss'][0]/cfg_list[i]['loss'][-1]/150))
         # loss_i = cfg_list[i]['loss']
         # w_loss += loss_i
     # w_loss_mean = w_loss/len(cfg_list)

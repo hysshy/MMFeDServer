@@ -96,6 +96,7 @@ def clear_client(client_cfg_list, savefile):
         if os.path.exists(client_cfg_list[i]['merge_file']):
             os.remove(client_cfg_list[i]['merge_file'])
         client_cfg_list[i]['merge_file'] = savefile
+        client_cfg_list[i]['bl_w'].append(1)
 
 def merge_epoch(client_cfg_list, aggregate_num, test_interval=1):
     logger.info('联邦融合epoch:' + str(aggregate_num))
