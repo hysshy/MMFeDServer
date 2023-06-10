@@ -1,7 +1,12 @@
 from server.eval import eval_kp_classify, eval_bbox
 
 def eval(client_cfg_list):
+    finishtype = []
     for i in range(len(client_cfg_list)):
+        if client_cfg_list[i]['tasktype'] in finishtype:
+            continue
+        else:
+            finishtype.append(client_cfg_list[i]['tasktype'])
         if client_cfg_list[i]['tasktype'] in ['faceKp', 'faceGender']:
             eval_kp_classify.infer_with_prebbox(client_cfg_list[i]['client_cfg_file'],
                                                 client_cfg_list[i]['merge_file'],
