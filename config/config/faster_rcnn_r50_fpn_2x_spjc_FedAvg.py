@@ -280,117 +280,117 @@ test_pipeline = [
 ]
 data = [
     dict(
-        client_ip='10.10.6.121',
-        client_port=5000,
+        client_ip='10.10.7.201',
+        client_port=5001,
         gpu_ids=[0],
         tasktype='detect',
         samples_per_gpu=2,
         workers_per_gpu=2,
         train=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/detect_train_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/detect_train_res.json',
             img_prefix='',
             pipeline=train_pipeline),
         val=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/detect_test_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/detect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline),
         test=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/detect_test_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/detect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline)
         ),
     dict(
-        client_ip='10.10.6.121',
-        client_port=5000,
+        client_ip='10.10.7.201',
+        client_port=5001,
         tasktype='faceKp',
         gpu_ids=[1],
         samples_per_gpu=2,
         workers_per_gpu=2,
         train=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/facekp_train_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/facekp_train_res.json',
             img_prefix='',
             pipeline=train_pipeline),
         val=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/facekp_test_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/facekp_test_res.json',
             img_prefix='',
             pipeline=test_pipeline),
         test=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/facekp_test_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/facekp_test_res.json',
             img_prefix='',
             pipeline=test_pipeline)
         ),
     dict(
-        client_ip='10.10.6.121',
-        client_port=5000,
+        client_ip='10.10.7.205',
+        client_port=5003,
         tasktype='faceGender',
-        gpu_ids=[2],
+        gpu_ids=[0],
         samples_per_gpu=2,
         workers_per_gpu=2,
         train=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/faceGender_train_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/faceGender_train_res.json',
             img_prefix='',
             pipeline=train_pipeline),
         val=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/faceGender_test_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/faceGender_test_res.json',
             img_prefix='',
             pipeline=test_pipeline),
         test=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/faceGender_test_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/faceGender_test_res.json',
             img_prefix='',
             pipeline=test_pipeline)
         ),
     dict(
-        client_ip='10.10.6.121',
-        client_port=5000,
+        client_ip='10.10.7.206',
+        client_port=5004,
         tasktype='faceDetect',
-        gpu_ids=[3],
+        gpu_ids=[1],
         samples_per_gpu=2,
         workers_per_gpu=2,
         train=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/faceDetect_train_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/faceDetect_train_res.json',
             img_prefix='',
             pipeline=train_pipeline),
         val=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/faceDetect_test_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/faceDetect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline),
         test=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/faceDetect_test_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/faceDetect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline)
         ),
     dict(
-        client_ip='10.10.6.121',
-        client_port=5000,
+        client_ip='10.10.7.206',
+        client_port=5004,
         tasktype='carplateDetect',
-        gpu_ids=[4],
+        gpu_ids=[0],
         samples_per_gpu=2,
         workers_per_gpu=2,
         train=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/carplateDetect_train_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/carplateDetect_train_res.json',
             img_prefix='',
             pipeline=train_pipeline),
         val=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/carplateDetect_test_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/carplateDetect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline),
         test=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson2/carplateDetect_test_res.json',
+            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/carplateDetect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline)
     )
@@ -404,12 +404,12 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=0.001,
-    step=[12, 18])
-max_epochs=20
+    step=[8, 11])
+max_epochs=12
 runner = dict(type='EpochBasedRunner', max_epochs=max_epochs)
 checkpoint_config = dict(interval=1)
 log_config = dict(interval=10, hooks=[dict(type='TextLoggerHook')])
-total_fedlw_num = 2
+total_fedbl_num = 2
 custom_hooks = [dict(type='FedReload', priority='LOWEST', interval=1), dict(type='NumClassCheckHook')]
 #, dict(type='FedLW', priority='LOWEST', total_fedlw_num=10)
 dist_params = dict(backend='nccl')
@@ -425,10 +425,10 @@ find_unused_parameters=True
 mp_start_method = 'spawn'
 #联邦训练任务Id
 job_root = 'job'
-job_id = 'testFedAvg'
+job_id = 'FedAvg2'
 test_interval=1
 #联邦融合策略
 fedmerge = 'FedAvg'
-fedlw = False
+fedbl = False
 server_ip = '10.10.5.136'
 server_port = 6000

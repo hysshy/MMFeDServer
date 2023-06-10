@@ -1,5 +1,5 @@
 model = dict(
-    type='TwoStageDetector_SPJC',
+    type='TwoStageDetector_SPJC_Public',
     backbone=dict(
         type='ResNet',
         depth=50,
@@ -34,65 +34,9 @@ model = dict(
                 target_stds=[1.0, 1.0, 1.0, 1.0]),
             loss_cls=dict(
                 type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0),
-            loss_bbox=dict(type='L1Loss', loss_weight=1.0)),
-        dict(
-            type='RPNHead',
-            in_channels=256,
-            feat_channels=256,
-            anchor_generator=dict(
-                type='AnchorGenerator',
-                scales=[4],
-                ratios=[0.5, 1.0, 2.0],
-                strides=[4, 8, 16, 32, 64]),
-            bbox_coder=dict(
-                type='DeltaXYWHBBoxCoder',
-                target_means=[0.0, 0.0, 0.0, 0.0],
-                target_stds=[1.0, 1.0, 1.0, 1.0]),
-            loss_cls=dict(
-                type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0),
-            loss_bbox=dict(type='L1Loss', loss_weight=1.0)),
-        dict(
-            type='RPNHead',
-            in_channels=256,
-            feat_channels=256,
-            anchor_generator=dict(
-                type='AnchorGenerator',
-                scales=[4],
-                ratios=[0.5, 1.0, 2],
-                strides=[4, 8, 16, 32, 64]),
-            bbox_coder=dict(
-                type='DeltaXYWHBBoxCoder',
-                target_means=[0.0, 0.0, 0.0, 0.0],
-                target_stds=[1.0, 1.0, 1.0, 1.0]),
-            loss_cls=dict(
-                type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0),
-            loss_bbox=dict(type='L1Loss', loss_weight=1.0)),
+            loss_bbox=dict(type='L1Loss', loss_weight=1.0))
     ],
     roi_head=[
-        dict(#目标检测
-            type='StandardRoIHead',
-            bbox_roi_extractor=dict(
-                type='SingleRoIExtractor',
-                roi_layer=dict(type='RoIAlign', output_size=7, sampling_ratio=0),
-                out_channels=256,
-                featmap_strides=[4, 8, 16, 32]),
-            bbox_head=dict(
-                type='Shared2FCBBoxHead',
-                #num_shared_convs=6,
-                in_channels=256,
-                fc_out_channels=1024,
-                roi_feat_size=7,
-                num_classes=7,
-                bbox_coder=dict(
-                    type='DeltaXYWHBBoxCoder',
-                    target_means=[0.0, 0.0, 0.0, 0.0],
-                    target_stds=[0.1, 0.1, 0.2, 0.2]),
-                reg_class_agnostic=False,
-                loss_cls=dict(
-                    type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-                loss_bbox=dict(type='L1Loss', loss_weight=1.0),
-                )
-        ),
         dict(#人脸检测
             type='StandardRoIHead',
             bbox_roi_extractor=dict(
@@ -153,7 +97,7 @@ model = dict(
                 type='Shared2FCBBoxHead',
                 #num_shared_convs=6,
                 with_reg=False,
-                with_background=True,
+                with_background=False,
                 in_channels=256,
                 fc_out_channels=512,
                 roi_feat_size=7,
@@ -166,30 +110,6 @@ model = dict(
                 loss_cls=dict(
                     type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
             )
-        ),
-        dict(#车牌检测
-            type='StandardRoIHead',
-            bbox_roi_extractor=dict(
-                type='SingleRoIExtractor',
-                roi_layer=dict(type='RoIAlign', output_size=7, sampling_ratio=0),
-                out_channels=256,
-                featmap_strides=[4, 8, 16, 32]),
-            bbox_head=dict(
-                type='Shared2FCBBoxHead',
-                #num_shared_convs=6,
-                in_channels=256,
-                fc_out_channels=1024,
-                roi_feat_size=7,
-                num_classes=1,
-                bbox_coder=dict(
-                    type='DeltaXYWHBBoxCoder',
-                    target_means=[0.0, 0.0, 0.0, 0.0],
-                    target_stds=[0.1, 0.1, 0.2, 0.2]),
-                reg_class_agnostic=False,
-                loss_cls=dict(
-                    type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-                loss_bbox=dict(type='L1Loss', loss_weight=1.0),
-                )
         )
     ],
     train_cfg=dict(
@@ -245,155 +165,109 @@ dataset_type = 'CocoDataset'
 data_root = 'data/coco/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
-train_pipeline =[
-            dict(type='LoadImageFromFile'),
-            dict(type='LoadAnnotations', with_bbox=True),
-            dict(type='Resize', img_scale=(1024, 576), keep_ratio=True),
-            dict(type='RandomFlip', flip_ratio=0.0),
+train_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='LoadAnnotations', with_bbox=True),
+    dict(type='Resize', img_scale=(1333, 800), keep_ratio=True),
+    dict(type='RandomFlip', flip_ratio=0.0),
+    dict(
+        type='Normalize',
+        mean=[123.675, 116.28, 103.53],
+        std=[58.395, 57.12, 57.375],
+        to_rgb=True),
+    dict(type='Pad', size_divisor=32),
+    dict(type='DefaultFormatBundle'),
+    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels', 'gt_keypoints', 'gt_visibles'])
+]
+test_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(
+        type='MultiScaleFlipAug',
+        img_scale=(1333, 800),
+        flip=False,
+        transforms=[
+            dict(type='Resize', keep_ratio=True),
+            dict(type='RandomFlip'),
             dict(
                 type='Normalize',
                 mean=[123.675, 116.28, 103.53],
                 std=[58.395, 57.12, 57.375],
                 to_rgb=True),
             dict(type='Pad', size_divisor=32),
-            dict(type='DefaultFormatBundle'),
-            dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels', 'gt_keypoints', 'gt_visibles'])
-]
-test_pipeline = [
-            dict(type='LoadImageFromFile'),
-            dict(
-                type='MultiScaleFlipAug',
-                img_scale=(1024, 576),
-                flip=False,
-                transforms=[
-                    dict(type='Resize', keep_ratio=True),
-                    dict(type='RandomFlip'),
-                    dict(
-                        type='Normalize',
-                        mean=[123.675, 116.28, 103.53],
-                        std=[58.395, 57.12, 57.375],
-                        to_rgb=True),
-                    dict(type='Pad', size_divisor=32),
-                    dict(type='ImageToTensor', keys=['img']),
-                    dict(type='Collect', keys=['img'])
-                ])
+            dict(type='ImageToTensor', keys=['img']),
+            dict(type='Collect', keys=['img'])
+        ])
 ]
 data = [
     dict(
-        client_ip='10.10.7.201',
-        client_port=5001,
-        gpu_ids=[0],
-        tasktype='detect',
-        samples_per_gpu=2,
-        workers_per_gpu=2,
-        train=dict(
-            type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/detect_train_res.json',
-            img_prefix='',
-            pipeline=train_pipeline),
-        val=dict(
-            type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/detect_test_res.json',
-            img_prefix='',
-            pipeline=test_pipeline),
-        test=dict(
-            type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/detect_test_res.json',
-            img_prefix='',
-            pipeline=test_pipeline)
-        ),
-    dict(
-        client_ip='10.10.7.201',
-        client_port=5001,
-        tasktype='faceKp',
-        gpu_ids=[1],
-        samples_per_gpu=2,
-        workers_per_gpu=2,
-        train=dict(
-            type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/facekp_train_res.json',
-            img_prefix='',
-            pipeline=train_pipeline),
-        val=dict(
-            type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/facekp_test_res.json',
-            img_prefix='',
-            pipeline=test_pipeline),
-        test=dict(
-            type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/facekp_test_res.json',
-            img_prefix='',
-            pipeline=test_pipeline)
-        ),
-    dict(
-        client_ip='10.10.7.205',
-        client_port=5003,
-        tasktype='faceGender',
-        gpu_ids=[0],
-        samples_per_gpu=2,
-        workers_per_gpu=2,
-        train=dict(
-            type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/faceGender_train_res.json',
-            img_prefix='',
-            pipeline=train_pipeline),
-        val=dict(
-            type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/faceGender_test_res.json',
-            img_prefix='',
-            pipeline=test_pipeline),
-        test=dict(
-            type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/faceGender_test_res.json',
-            img_prefix='',
-            pipeline=test_pipeline)
-        ),
-    dict(
-        client_ip='10.10.7.206',
-        client_port=5004,
+        client_ip='10.10.6.121',
+        client_port=5000,
+        gpu_ids=[5],
         tasktype='faceDetect',
-        gpu_ids=[0],
         samples_per_gpu=2,
         workers_per_gpu=2,
         train=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/faceDetect_train_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/faceDetect_train_res.json',
             img_prefix='',
             pipeline=train_pipeline),
         val=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/faceDetect_test_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/faceDetect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline),
         test=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/faceDetect_test_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/faceDetect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline)
         ),
     dict(
-        client_ip='10.10.7.206',
-        client_port=5004,
-        tasktype='carplateDetect',
-        gpu_ids=[1],
+        client_ip='10.10.6.121',
+        client_port=5000,
+        tasktype='faceKp',
+        gpu_ids=[6],
         samples_per_gpu=2,
         workers_per_gpu=2,
         train=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/carplateDetect_train_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/facekp_train_res.json',
             img_prefix='',
             pipeline=train_pipeline),
         val=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/carplateDetect_test_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/facekp_test_res.json',
             img_prefix='',
             pipeline=test_pipeline),
         test=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/spjgh/lunwenjson/carplateDetect_test_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/facekp_test_res.json',
             img_prefix='',
             pipeline=test_pipeline)
-    )
+        ),
+    dict(
+        client_ip='10.10.6.121',
+        client_port=5000,
+        tasktype='faceGender',
+        gpu_ids=[7],
+        samples_per_gpu=2,
+        workers_per_gpu=2,
+        train=dict(
+            type='CocoDataset',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/faceGender_train_res.json',
+            img_prefix='',
+            pipeline=train_pipeline),
+        val=dict(
+            type='CocoDataset',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/faceGender_test_res.json',
+            img_prefix='',
+            pipeline=test_pipeline),
+        test=dict(
+            type='CocoDataset',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/faceGender_test_res.json',
+            img_prefix='',
+            pipeline=test_pipeline)
+        )
 ]
 # data =
 evaluation = dict(interval=21, metric='bbox')
@@ -404,12 +278,12 @@ lr_config = dict(
     warmup='linear',
     warmup_iters=500,
     warmup_ratio=0.001,
-    step=[10, 13])
-max_epochs=15
+    step=[8, 11])
+max_epochs=12
 runner = dict(type='EpochBasedRunner', max_epochs=max_epochs)
 checkpoint_config = dict(interval=1)
 log_config = dict(interval=10, hooks=[dict(type='TextLoggerHook')])
-total_fedlw_num = 2
+total_fedbl_num = 2
 custom_hooks = [dict(type='FedReload', priority='LOWEST', interval=1), dict(type='NumClassCheckHook')]
 #, dict(type='FedLW', priority='LOWEST', total_fedlw_num=10)
 dist_params = dict(backend='nccl')
@@ -425,10 +299,10 @@ find_unused_parameters=True
 mp_start_method = 'spawn'
 #联邦训练任务Id
 job_root = 'job'
-job_id = 'FedAvg'
+job_id = 'Public-FedAvg'
 test_interval=1
 #联邦融合策略
 fedmerge = 'FedAvg'
-fedlw = False
+fedbl = False
 server_ip = '10.10.5.136'
 server_port = 6000
