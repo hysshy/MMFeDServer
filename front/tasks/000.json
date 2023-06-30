@@ -1,0 +1,1 @@
+{"task_id": "000", "task_list": [{"name": "fedserver1", "ip": "0.0.0.0", "port": 5002, "dataset": "faceDetect_train_res_1_0.json", "gpu": 0}, {"name": "fedserver2", "ip": "0.0.0.0", "port": 5002, "dataset": "faceGender_train_res_1_0.json", "gpu": 1}]}

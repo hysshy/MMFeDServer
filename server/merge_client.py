@@ -4,9 +4,9 @@ from concurrent.futures import ThreadPoolExecutor, wait
 import time
 import torch
 from utils.Log import logger
-from fedmerge.fedHFGA import fedHFGA
-from fedmerge.fed_bl import fed_BL
-from server.check_client import download_file, upload_file, get_client_loss, post_client_fedbl
+from fusion.fedHFGA import fedHFGA
+from fusion.fed_bl import fed_BL
+from server.to_client import download_file, upload_file, get_client_loss, post_client_fedbl
 from server import test_client
 from utils.common import download_epoch_list, is_file_transfer_complete
 import numpy as np
@@ -96,7 +96,6 @@ def clear_client(client_cfg_list, savefile):
         if os.path.exists(client_cfg_list[i]['merge_file']):
             os.remove(client_cfg_list[i]['merge_file'])
         client_cfg_list[i]['merge_file'] = savefile
-        client_cfg_list[i]['bl_w'].append(1)
 
 def merge_epoch(client_cfg_list, aggregate_num, test_interval=1):
     logger.info('联邦融合epoch:' + str(aggregate_num))

@@ -68,33 +68,33 @@ if __name__ == '__main__':
     # dd = torch.load('/home/chase/shy/mutiltask_mmdetection/tools/work_dirs/faster_rcnn_r50_fpn_2x_coco_spjc2/epoch_1.pth')
     cfg_list = []
     cfg1 = {}
-    cfg1['client_epoch_savepath'] = '/home/chase/PycharmProjects/MMFeDServer/job/test-FPN2/0_172.16.1.190/epoch_1.pth'
-    cfg1['tasktype'] = 'detect'
+    cfg1['client_epoch_savepath'] = '/home/chase/PycharmProjects/MMFeDServer/job/Public-FedAvg_facecar/0_10.10.6.121/epoch_1.pth'
+    cfg1['tasktype'] = 'faceDetect'
     cfg1['adaptive_w'] = 0
     cfg_list.append(cfg1)
 
     cfg2 = {}
-    cfg2['client_epoch_savepath'] = '/home/chase/PycharmProjects/MMFeDServer/job/test-FPN2/1_172.16.1.190/epoch_1.pth'
-    cfg2['tasktype'] = 'faceKp'
+    cfg2['client_epoch_savepath'] = '/home/chase/PycharmProjects/MMFeDServer/job/Public-FedAvg_facecar/1_10.10.6.121/epoch_1.pth'
+    cfg2['tasktype'] = 'carplateDetect'
     cfg2['adaptive_w'] = 0
     cfg_list.append(cfg2)
 
-    cfg3 = {}
-    cfg3['client_epoch_savepath'] = '/home/chase/PycharmProjects/MMFeDServer/job/test-FPN2/2_172.16.1.190/epoch_1.pth'
-    cfg3['tasktype'] = 'faceDetect'
-    cfg3['adaptive_w'] = 0
-    cfg_list.append(cfg3)
-
-    cfg4 = {}
-    cfg4['client_epoch_savepath'] = '/home/chase/PycharmProjects/MMFeDServer/job/test-FPN2/3_172.16.1.190/epoch_1.pth'
-    cfg4['tasktype'] = 'faceGender'
-    cfg4['adaptive_w'] = 0
-    cfg_list.append(cfg4)
-
-    cfg5 = {}
-    cfg5['client_epoch_savepath'] = '/home/chase/PycharmProjects/MMFeDServer/job/test-FPN2/4_172.16.1.190/epoch_1.pth'
-    cfg5['tasktype'] = 'carplateDetect'
-    cfg5['adaptive_w'] = 0
-    cfg_list.append(cfg5)
+    # cfg3 = {}
+    # cfg3['client_epoch_savepath'] = '/home/chase/PycharmProjects/MMFeDServer/job/test-FPN2/2_172.16.1.190/epoch_1.pth'
+    # cfg3['tasktype'] = 'faceDetect'
+    # cfg3['adaptive_w'] = 0
+    # cfg_list.append(cfg3)
+    #
+    # cfg4 = {}
+    # cfg4['client_epoch_savepath'] = '/home/chase/PycharmProjects/MMFeDServer/job/test-FPN2/3_172.16.1.190/epoch_1.pth'
+    # cfg4['tasktype'] = 'faceGender'
+    # cfg4['adaptive_w'] = 0
+    # cfg_list.append(cfg4)
+    #
+    # cfg5 = {}
+    # cfg5['client_epoch_savepath'] = '/home/chase/PycharmProjects/MMFeDServer/job/test-FPN2/4_172.16.1.190/epoch_1.pth'
+    # cfg5['tasktype'] = 'carplateDetect'
+    # cfg5['adaptive_w'] = 0
+    # cfg_list.append(cfg5)
 
     fedHFGA(cfg_list)

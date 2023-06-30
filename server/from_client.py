@@ -1,6 +1,5 @@
 import os.path
-from mmcv import Config
-from client import app
+from front import app
 from flask import request, send_file
 import pkg_resources
 from utils.Log import logger

@@ -102,7 +102,7 @@ def is_prepare(cfg):
 #获取客户端当前loss值
 def get_client_loss(cfg, work_dir, total_fedbl_num, fedbl_num):
     # logger.info('获取客户端当前loss值:'+ cfg['client_id'])
-    response = requests.post('http://{}:{}/post_client_loss'.format(cfg['client_ip'], cfg['client_port']),
+    response = requests.post('http://{}:{}/post_fedbl_loss'.format(cfg['client_ip'], cfg['client_port']),
                            json={'work_dir': work_dir,
                                  'total_fedbl_num':total_fedbl_num,
                                  'fedbl_num':fedbl_num})

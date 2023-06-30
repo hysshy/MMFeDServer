@@ -1,4 +1,6 @@
 import os
+import time
+
 from mmdet.datasets.api_wrappers import COCO
 from mmdet.apis import init_detector, inference_detector
 from mmcv import Config
@@ -34,6 +36,7 @@ def infer_with_prebbox(config_file, checkpoint_file, adaptive_w_dict, gpu_id, ty
     img_ids = dataset.get_img_ids()
     gt_bboxes, gt_labels, gt_keypoints, pre_bboxes, pre_labels, pre_keypoints = [],[],[],[],[],[]
     for id in img_ids:
+        start = time.time()
         imgs = dataset.load_imgs(id)
         an_ids = dataset.get_ann_ids(img_ids=id)
         anlist = dataset.load_anns(an_ids)
@@ -45,6 +48,7 @@ def infer_with_prebbox(config_file, checkpoint_file, adaptive_w_dict, gpu_id, ty
             gt_keypoints.append(an['keypoints'])
             gt_labels.append(an['category_id'])
         results = inference_detector(model, imgs[0]['file_name'], pre_bbox, adaptive_w_dict)
+        print(time.time() -start)
         img = cv2.imread(imgs[0]['file_name'])
         if type == 'faceKp':
             facekps = results
@@ -116,4 +120,6 @@ if __name__ == '__main__':
     # an = dataset.load_anns(an_ids)
     # print(an)
 
-    infer_with_prebbox('/home/chase/PycharmProjects/MMFeDServer/job/testGA-FPN/2_172.16.1.190/faster_rcnn_r50_fpn_2x_spjc_GA-FPN.py', '/home/chase/PycharmProjects/MMFeDServer/job/testGA-FPN/merge_epoch_12.pth', 0, type = 'faceGender', drawPath = None)
+    config_file = '/home/chase/PycharmProjects/MMFedClient/job/singletask/faster_rcnn_r50_fpn_2x_WiderFace-faceKp.py'
+    checkpoint_file = '/home/chase/PycharmProjects/MMFedClient/job/singletask/WiderFace-kp.pth'
+    infer_with_prebbox(config_file, checkpoint_file, None, 0, type = 'faceGender', drawPath = None)

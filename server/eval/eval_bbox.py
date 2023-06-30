@@ -120,7 +120,7 @@ def parse_args(config, checkpoint, gpu_id, mertric):
     return args
 
 
-def eval(config, checkpoint, adaptive_w_dict, gpu_id=0, mertrick='bbox', tasktype='detect'):
+def eval(config, checkpoint, adaptive_w_dict, gpu_id=1, mertrick='bbox', tasktype='detect'):
 
     cfg = Config.fromfile(config)
 
@@ -227,16 +227,16 @@ def eval(config, checkpoint, adaptive_w_dict, gpu_id=0, mertrick='bbox', tasktyp
 
 
 if __name__ == '__main__':
-    config = '/home/chase/shy/dataset/testGA-FPN2/0_172.16.1.190/faster_rcnn_r50_fpn_2x_spjc_GA-FPN.py'
-    checkpoint = '/home/chase/shy/dataset/testGA-FPN2/merge_epoch_12.pth'
-    adaptive_w_txt = '/home/chase/shy/test.txt'
-    adaptive_w_dict = {}
-    with open(adaptive_w_txt, mode='r') as f:
-        lines = f.readlines()
-        for i in range(len(lines)):
-            adaptive_ws = lines[i].strip('\n').split(':')
-            targetName = adaptive_ws[0]
-            adaptive_w = float(adaptive_ws[1])
-            adaptive_w_dict.setdefault(targetName, adaptive_w)
-    print(adaptive_w_dict)
-    eval(config, checkpoint, adaptive_w_dict, gpu_id=0, mertrick='bbox')
+    config = '/home/chase/Public-FedAvg-Coco/1_10.10.6.121/faster_rcnn_r50_fpn_2x_coco_FedDGA.py'
+    checkpoint = '/home/chase/Public-FedAvg-Coco/merge_epoch_12.pth'
+    # adaptive_w_txt = '/home/chase/shy/test.txt'
+    # adaptive_w_dict = {}
+    # with open(adaptive_w_txt, mode='r') as f:
+    #     lines = f.readlines()
+    #     for i in range(len(lines)):
+    #         adaptive_ws = lines[i].strip('\n').split(':')
+    #         targetName = adaptive_ws[0]
+    #         adaptive_w = float(adaptive_ws[1])
+    #         adaptive_w_dict.setdefault(targetName, adaptive_w)
+    # print(adaptive_w_dict)
+    eval(config, checkpoint, None, gpu_id=0, mertrick='bbox')

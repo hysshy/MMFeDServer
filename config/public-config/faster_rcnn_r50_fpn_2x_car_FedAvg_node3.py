@@ -12,8 +12,8 @@ model = dict(
         init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet50')),
     neck=dict(
         type='FPN',
-        neck_names = ['backbone_neck', 'task_neck'],
-        attention = 'GA',
+        neck_names = ['backbone_neck'],
+        attention = 'None',
         convtype = 'conv2d',
         in_channels=[256, 512, 1024, 2048],
         out_channels=256,
@@ -21,6 +21,24 @@ model = dict(
     rpn_head=[
         dict(
             type='RPNHead',
+            rpn_head_type='carplateDetect',
+            in_channels=256,
+            feat_channels=256,
+            anchor_generator=dict(
+                type='AnchorGenerator',
+                scales=[8],
+                ratios=[0.5, 1.0, 2.0],
+                strides=[4, 8, 16, 32, 64]),
+            bbox_coder=dict(
+                type='DeltaXYWHBBoxCoder',
+                target_means=[0.0, 0.0, 0.0, 0.0],
+                target_stds=[1.0, 1.0, 1.0, 1.0]),
+            loss_cls=dict(
+                type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0),
+            loss_bbox=dict(type='L1Loss', loss_weight=1.0)),
+        dict(
+            type='RPNHead',
+            rpn_head_type='carDetect',
             in_channels=256,
             feat_channels=256,
             anchor_generator=dict(
@@ -37,8 +55,9 @@ model = dict(
             loss_bbox=dict(type='L1Loss', loss_weight=1.0))
     ],
     roi_head=[
-        dict(#人脸检测
+        dict(#车辆检测
             type='StandardRoIHead',
+            roi_head_type='carDetect',
             bbox_roi_extractor=dict(
                 type='SingleRoIExtractor',
                 roi_layer=dict(type='RoIAlign', output_size=7, sampling_ratio=0),
@@ -46,11 +65,10 @@ model = dict(
                 featmap_strides=[4, 8, 16, 32]),
             bbox_head=dict(
                 type='Shared2FCBBoxHead',
-                #num_shared_convs=6,
                 in_channels=256,
                 fc_out_channels=1024,
                 roi_feat_size=7,
-                num_classes=2,
+                num_classes=6,
                 bbox_coder=dict(
                     type='DeltaXYWHBBoxCoder',
                     target_means=[0.0, 0.0, 0.0, 0.0],
@@ -61,56 +79,31 @@ model = dict(
                 loss_bbox=dict(type='L1Loss', loss_weight=1.0),
                 )
         ),
-        dict(#人脸关键点
+        dict(#车牌检测
             type='StandardRoIHead',
+            roi_head_type='carplateDetect',
             bbox_roi_extractor=dict(
                 type='SingleRoIExtractor',
-                roi_layer=dict(type='RoIAlign', out_size=28, sample_num=0),
+                roi_layer=dict(type='RoIAlign', output_size=7, sampling_ratio=0),
                 out_channels=256,
                 featmap_strides=[4, 8, 16, 32]),
             bbox_head=dict(
                 type='Shared2FCBBoxHead',
-                num_shared_convs=0,
-                with_faceKp=True,
                 in_channels=256,
-                fc_out_channels=512,
-                roi_feat_size=28,
+                fc_out_channels=1024,
+                roi_feat_size=7,
                 num_classes=1,
                 bbox_coder=dict(
                     type='DeltaXYWHBBoxCoder',
-                    target_means=[0., 0., 0., 0.],
-                    target_stds=[0.05, 0.05, 0.1, 0.1]),
-                reg_class_agnostic=False,
-                loss_cls=dict(
-                    type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-                loss_bbox=dict(type='SmoothL1Loss', beta=1.0, loss_weight=1.0),
-            )
-        ),
-        dict(#人脸性别
-            type='StandardRoIHead',
-            bbox_roi_extractor=dict(
-                type='SingleRoIExtractor',
-                roi_layer=dict(type='RoIAlign', out_size=7, sample_num=0),
-                out_channels=256,
-                featmap_strides=[4, 8, 16, 32]),
-            bbox_head=dict(
-                type='Shared2FCBBoxHead',
-                #num_shared_convs=6,
-                with_reg=False,
-                with_background=False,
-                in_channels=256,
-                fc_out_channels=512,
-                roi_feat_size=7,
-                num_classes=2,
-                bbox_coder=dict(
-                    type='DeltaXYWHBBoxCoder',
-                    target_means=[0., 0., 0., 0.],
+                    target_means=[0.0, 0.0, 0.0, 0.0],
                     target_stds=[0.1, 0.1, 0.2, 0.2]),
                 reg_class_agnostic=False,
                 loss_cls=dict(
                     type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-            )
+                loss_bbox=dict(type='L1Loss', loss_weight=1.0),
+                )
         )
+        
     ],
     train_cfg=dict(
         rpn=dict(
@@ -202,69 +195,138 @@ data = [
     dict(
         client_ip='10.10.6.121',
         client_port=5000,
-        gpu_ids=[5],
-        tasktype='faceDetect',
+        gpu_ids=[2],
+        tasktype='carDetect',
         samples_per_gpu=2,
         workers_per_gpu=2,
         train=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/faceDetect_train_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carDetect_train_res_3_0.json',
             img_prefix='',
             pipeline=train_pipeline),
         val=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/faceDetect_test_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carDetect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline),
         test=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/faceDetect_test_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carDetect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline)
         ),
     dict(
         client_ip='10.10.6.121',
         client_port=5000,
-        tasktype='faceKp',
+        gpu_ids=[3],
+        tasktype='carDetect',
+        samples_per_gpu=2,
+        workers_per_gpu=2,
+        train=dict(
+            type='CocoDataset',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carDetect_train_res_3_1.json',
+            img_prefix='',
+            pipeline=train_pipeline),
+        val=dict(
+            type='CocoDataset',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carDetect_test_res.json',
+            img_prefix='',
+            pipeline=test_pipeline),
+        test=dict(
+            type='CocoDataset',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carDetect_test_res.json',
+            img_prefix='',
+            pipeline=test_pipeline)
+        ),
+    dict(
+        client_ip='10.10.6.121',
+        client_port=5000,
+        gpu_ids=[4],
+        tasktype='carDetect',
+        samples_per_gpu=2,
+        workers_per_gpu=2,
+        train=dict(
+            type='CocoDataset',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carDetect_train_res_3_2.json',
+            img_prefix='',
+            pipeline=train_pipeline),
+        val=dict(
+            type='CocoDataset',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carDetect_test_res.json',
+            img_prefix='',
+            pipeline=test_pipeline),
+        test=dict(
+            type='CocoDataset',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carDetect_test_res.json',
+            img_prefix='',
+            pipeline=test_pipeline)
+        ),
+    dict(
+        client_ip='10.10.6.121',
+        client_port=5000,
+        tasktype='carplateDetect',
+        gpu_ids=[5],
+        samples_per_gpu=2,
+        workers_per_gpu=2,
+        train=dict(
+            type='CocoDataset',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carplateDetect_train_res_3_0.json',
+            img_prefix='',
+            pipeline=train_pipeline),
+        val=dict(
+            type='CocoDataset',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carplateDetect_test_res.json',
+            img_prefix='',
+            pipeline=test_pipeline),
+        test=dict(
+            type='CocoDataset',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carplateDetect_test_res.json',
+            img_prefix='',
+            pipeline=test_pipeline)
+        ),
+    dict(
+        client_ip='10.10.6.121',
+        client_port=5000,
+        tasktype='carplateDetect',
         gpu_ids=[6],
         samples_per_gpu=2,
         workers_per_gpu=2,
         train=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/facekp_train_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carplateDetect_train_res_3_1.json',
             img_prefix='',
             pipeline=train_pipeline),
         val=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/facekp_test_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carplateDetect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline),
         test=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/facekp_test_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carplateDetect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline)
         ),
     dict(
         client_ip='10.10.6.121',
         client_port=5000,
-        tasktype='faceGender',
+        tasktype='carplateDetect',
         gpu_ids=[7],
         samples_per_gpu=2,
         workers_per_gpu=2,
         train=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/faceGender_train_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carplateDetect_train_res_3_2.json',
             img_prefix='',
             pipeline=train_pipeline),
         val=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/faceGender_test_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carplateDetect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline),
         test=dict(
             type='CocoDataset',
-            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/faceGender_test_res.json',
+            ann_file='/home/chase/shy/dataset/publicDatas/lunwenjson/carplateDetect_test_res.json',
             img_prefix='',
             pipeline=test_pipeline)
         )
@@ -299,10 +361,10 @@ find_unused_parameters=True
 mp_start_method = 'spawn'
 #联邦训练任务Id
 job_root = 'job'
-job_id = 'Public-FedDGA'
-test_interval=1
+job_id = 'Public-FedAvg_car_Node3'
+test_interval=12
 #联邦融合策略
 fedmerge = 'FedAvg'
 fedbl = False
-server_ip = '10.10.5.136'
+server_ip = '10.10.7.201'
 server_port = 6000
