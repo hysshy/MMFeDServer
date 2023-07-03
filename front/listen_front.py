@@ -1,11 +1,10 @@
 import os
-from flask_cors import CORS
+# from flask_cors import CORS
 from flask import request, send_file
 from utils.Log import logger
 from front import app
 import requests
 from flask_restful import Api
-from front import network
 import copy
 from mmcv import Config, ConfigDict
 import json
@@ -75,6 +74,7 @@ def get_task_list():
     respond = {'code':0}
     task_list = []
     for taskfile in taskdir:
+        print(taskfile)
         with open(taskPath+taskfile, 'rb') as f:
             data = f.read()
             data = json.loads(data.decode())
@@ -154,8 +154,14 @@ def start_task():
     reponse = {'code': 0, 'task_id':task_id, 'msg': '开始训练任务成功'}
     return reponse
 
+@app.route('/fedserver/test', methods=['GET'])
+def ddd():
+    print('wwwwwwwwwwwwwww')
+    print('dfdfdfdf')
+    return 'jjj'
+
 if __name__ == '__main__':
-    CORS(app,supports_credentials=True)
+    # CORS(app,supports_credentials=True)
     api = Api(app)
     app.run(host='0.0.0.0', port=5001, debug=False)
     # cfg = Config.fromfile('/home/chase/PycharmProjects/MMFeDServer/front/faster_rcnn_r50_fpn_2x_WiderFace_FedDGA.py')

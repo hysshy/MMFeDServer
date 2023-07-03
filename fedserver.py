@@ -34,7 +34,7 @@ def start(config, server_ip, sever_port):
     t.start()
     # fed_merging(client_config_list, 1, cfg.max_epochs, cfg.test_interval, cfg.total_fedbl_num, cfg.fedbl)
     api = Api(app)
-    app.run(host=server_ip, port=sever_port, debug=False)
+    app.run(host=str(server_ip), port=int(sever_port), debug=False)
 
 if __name__ == '__main__':
     args = parse_args()

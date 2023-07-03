@@ -1,5 +1,5 @@
 import os.path
-from front import app
+from server import app
 from flask import request, send_file
 import pkg_resources
 from utils.Log import logger
